@@ -1,0 +1,23 @@
+name: Build Trautonium
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -B build -G Xcode
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Package
+        run: |
+          mkdir out
+          cp -R "$(find build -name Trautonium.component -type d | head -1)" out/
+          cp -R "$(find build -name Trautonium.vst3 -type d | head -1)" out/
+          cd out && zip -ry ../Trautonium-mac.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Trautonium-mac
+          path: Trautonium-mac.zip
